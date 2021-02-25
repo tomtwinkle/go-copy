@@ -4,16 +4,20 @@ import (
 	"reflect"
 )
 
-func deepFields(typ reflect.Type) []reflect.StructField {
+func deepFields(typ reflect.Type, depth int) []StructField {
 	typ = indirectType(typ)
 	num := typ.NumField()
-	var fields []reflect.StructField
+	var fields []StructField
 	for i := 0; i < num; i++ {
 		field := typ.Field(i)
-		if field.Anonymous {
-			fields = append(fields, deepFields(field.Type)...)
+		structField := StructField{
+			field,
+			depth,
+		}
+		if field.Anonymous && field.Type.Kind() != reflect.Interface {
+			fields = append(fields, deepFields(field.Type, depth+1)...)
 		} else {
-			fields = append(fields, field)
+			fields = append(fields, structField)
 		}
 	}
 	return fields

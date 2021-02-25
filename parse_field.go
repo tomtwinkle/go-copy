@@ -5,13 +5,18 @@ import (
 	"strings"
 )
 
-type FieldParseFunc func(field reflect.StructField) string
+type StructField struct {
+	reflect.StructField
+	depth int
+}
 
-func ParseFiledByName(field reflect.StructField) string {
+type FieldParseFunc func(field StructField) string
+
+func ParseFiledByName(field StructField) string {
 	return field.Name
 }
 
-func ParseFieldByJSONTag(field reflect.StructField) string {
+func ParseFieldByJSONTag(field StructField) string {
 	tag := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
 	if tag == "-" {
 		return ""
@@ -19,7 +24,7 @@ func ParseFieldByJSONTag(field reflect.StructField) string {
 	return tag
 }
 
-func ParseFieldByCopyTag(field reflect.StructField) string {
+func ParseFieldByCopyTag(field StructField) string {
 	tag := strings.SplitN(field.Tag.Get("copy"), ",", 2)[0]
 	if tag == "-" {
 		return ""
