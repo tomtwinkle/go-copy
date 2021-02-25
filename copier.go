@@ -2,11 +2,12 @@ package copy
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"unsafe"
 
-	"github.com/modern-go/reflect2"
 	"github.com/golang/groupcache/lru"
+	"github.com/modern-go/reflect2"
 )
 
 type Copier = *copier
@@ -123,19 +124,19 @@ func (c *copier) parseStructs(dstType, srcType reflect2.Type) *structDescriptor 
 		SrcType: srcType,
 	}
 
-	dstFields := make(map[string]reflect.StructField)
-	for _, field := range deepFields(dstType.Type1()) {
+	dstFields := make(map[string]StructField)
+	for _, field := range deepFields(dstType.Type1(), 0) {
 		name := c.fieldParser(field)
 		if name != "" {
-			dstFields[name] = field
+			dstFields[fmt.Sprintf("%s-%d", name, field.depth)] = field
 		}
 	}
 
-	srcFields := make(map[string]reflect.StructField)
-	for _, field := range deepFields(srcType.Type1()) {
+	srcFields := make(map[string]StructField)
+	for _, field := range deepFields(srcType.Type1(), 0) {
 		name := c.fieldParser(field)
 		if name != "" {
-			srcFields[name] = field
+			srcFields[fmt.Sprintf("%s-%d", name, field.depth)] = field
 		}
 	}
 
