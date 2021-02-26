@@ -108,10 +108,68 @@ func (c *copier) parse(dstType, srcType reflect2.Type) interface{} {
 }
 
 func (c *copier) parseAssignable(dstType, srcType reflect2.Type) *assignCopier {
-	if dstType.AssignableTo(srcType) {
+	if c.isAssignable(dstType, srcType) {
 		return &assignCopier{}
 	}
 	return nil
+}
+
+func (c *copier) isAssignable(dstType, srcType reflect2.Type) bool {
+	if dstType.AssignableTo(srcType) {
+		return true
+	}
+	if dstType.Kind() == srcType.Kind() &&
+		srcType.Kind() != reflect.Struct {
+		return true
+	}
+	switch dstType.Kind() {
+	case reflect.Int:
+		return (srcType.Kind() == reflect.Int8) ||
+			(srcType.Kind() == reflect.Int16) ||
+			(srcType.Kind() == reflect.Int32) ||
+			(srcType.Kind() == reflect.Int64) ||
+			(srcType.Kind() == reflect.Uint8) ||
+			(srcType.Kind() == reflect.Uint16) ||
+			(srcType.Kind() == reflect.Uint32) ||
+			(srcType.Kind() == reflect.Uint64)
+	case reflect.Int8:
+		return srcType.Kind() == reflect.Int
+	case reflect.Int32:
+		return (srcType.Kind() == reflect.Int8) ||
+			(srcType.Kind() == reflect.Int16) ||
+			(srcType.Kind() == reflect.Int) ||
+			(srcType.Kind() == reflect.Uint8) ||
+			(srcType.Kind() == reflect.Uint16) ||
+			(srcType.Kind() == reflect.Uint32)
+	case reflect.Int64:
+		return (srcType.Kind() == reflect.Int8) ||
+			(srcType.Kind() == reflect.Int16) ||
+			(srcType.Kind() == reflect.Int32) ||
+			(srcType.Kind() == reflect.Int) ||
+			(srcType.Kind() == reflect.Uint8) ||
+			(srcType.Kind() == reflect.Uint16) ||
+			(srcType.Kind() == reflect.Uint32)
+	case reflect.Uint8:
+		return (srcType.Kind() == reflect.Int8) ||
+			(srcType.Kind() == reflect.Int)
+	case reflect.Uint32:
+		return (srcType.Kind() == reflect.Int8) ||
+			(srcType.Kind() == reflect.Int16) ||
+			(srcType.Kind() == reflect.Int32) ||
+			(srcType.Kind() == reflect.Int) ||
+			(srcType.Kind() == reflect.Uint8) ||
+			(srcType.Kind() == reflect.Uint16)
+	case reflect.Uint64:
+		return (srcType.Kind() == reflect.Int8) ||
+			(srcType.Kind() == reflect.Int16) ||
+			(srcType.Kind() == reflect.Int32) ||
+			(srcType.Kind() == reflect.Int64) ||
+			(srcType.Kind() == reflect.Int) ||
+			(srcType.Kind() == reflect.Uint8) ||
+			(srcType.Kind() == reflect.Uint16) ||
+			(srcType.Kind() == reflect.Uint32)
+	}
+	return false
 }
 
 func (c *copier) parseStructs(dstType, srcType reflect2.Type) *structDescriptor {
